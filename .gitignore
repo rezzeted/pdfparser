@@ -19,3 +19,5 @@ CMakeLists.txt.user*
 *.pro.user
 *.pro.user.*
 PVS.*
+
+_intermediate_x64/*

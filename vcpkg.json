@@ -1,0 +1,8 @@
+{
+    "name": "supermapeditor",
+    "version": "1.0.0",
+    "dependencies": [
+        "qt5-base",
+        "zlib"
+    ]
+}
