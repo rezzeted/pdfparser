@@ -144,29 +144,34 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    QString filename = argv[2];
 
-    QFile file(argv[2]);
-    if (! file.open(QFile::WriteOnly | QFile::Truncate))
+    PDF::Reader* reader = new PDF::Reader();
+    reader->open(filename);
+    int pageCount = reader->pageCount();
+
     {
-        std::cerr << "I can't write to file " << argv[2] << file.errorString().toLocal8Bit().data() << std::endl;
-        return 2;
+        QFile file("sample.pdf");
+        if (!file.open(QFile::WriteOnly | QFile::Truncate))
+        {
+            std::cerr << "I can't write to file " << argv[2] << file.errorString().toLocal8Bit().data() << std::endl;
+            return 2;
+        }
+
+        PDF::Writer* writer = new PDF::Writer(&file);
+        writer->writePDFHeader(1,7);
+
+        QVector<PdfPageInfo> pages;
+        PdfProcessor *proc = new PdfProcessor(filename);
+        proc->open();
+
+        proc->run(writer, writer->xRefTable().maxObjNum() + 3);
+        pages << proc->pageInfo();
+        delete proc;
+
+        writeCatalog(writer, pages);
+        file.close();
     }
-
-
-
-    PDF::Writer writer(&file);
-    writer.writePDFHeader(1,7);
-
-    QVector<PdfPageInfo> pages;
-    PdfProcessor *proc = new PdfProcessor(argv[1]);
-    proc->open();
-
-    proc->run(&writer, writer.xRefTable().maxObjNum() + 3);
-    pages << proc->pageInfo();
-    delete proc;
-
-    writeCatalog(&writer, pages);
-    file.close();
 
     return 0;
 }
